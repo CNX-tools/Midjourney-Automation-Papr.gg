@@ -16,24 +16,33 @@ from datetime import datetime as dt
 load_dotenv(override=True)
 
 # Init the logger
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+log_format = '%(asctime)s - [%(levelname)s] [%(pathname)s:%(lineno)d] - %(message)s - [%(process)d:%(thread)d]'
+datefmt = '%Y-%m-%d %H:%M:%S'
 
 logger = logging.getLogger('download_bot')
 file_handler = logging.FileHandler(filename='logs/download_bot.log', encoding='utf-8')
-file_handler.setFormatter(logging.Formatter(log_format))
+file_handler.setFormatter(logging.Formatter(log_format, datefmt=datefmt))
 logger.addHandler(file_handler)
 
 # Stream the logs to the console with color and format
-stream_handler = logging.StreamHandler(sys.stdout)
-stream_handler.setFormatter(logging.Formatter(log_format))
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(logging.Formatter(log_format, datefmt=datefmt))
 stream_handler.setLevel(logging.INFO)
 logger.addHandler(stream_handler)
 
 # Record the logs of discord as well
 discord_logger = logging.getLogger('discord')
 discord_file_handler = logging.FileHandler(filename='logs/download_bot.log', encoding='utf-8')
-discord_file_handler.setFormatter(logging.Formatter(log_format))
+discord_file_handler.setFormatter(logging.Formatter(log_format, datefmt=datefmt))
 discord_logger.addHandler(discord_file_handler)
+
+# Stream the logs of discord as well
+discord_stream_handler = logging.StreamHandler()
+discord_stream_handler.setFormatter(logging.Formatter(log_format, datefmt=datefmt))
+discord_logger.addHandler(discord_stream_handler)
+
+logger.setLevel(logging.INFO)
+discord_logger.setLevel(logging.INFO)
 
 
 class DownloadBot(commands.Bot):
@@ -54,10 +63,7 @@ class DownloadBot(commands.Bot):
         with open('configs/prompts.json', 'r', encoding='utf-8') as f:
             self.prompts_configs = json.load(f)
 
-        logger.info('Configs read successfully:')
-        logger.info(f'General: {json.dumps(self.general_configs, indent=4)}')
-        logger.info(f'Images: {json.dumps(self.images_configs, indent=4)}')
-        logger.info(f'Prompts: {json.dumps(self.prompts_configs, indent=4)}')
+        logger.info('Configs read successfully')
 
     def _split_image(self, image_file_path: str):
         with Image.open(image_file_path) as img:
@@ -96,8 +102,8 @@ class DownloadBot(commands.Bot):
                 # Create the folder to store the split images
                 os.makedirs(f'download/{date_today}/split', exist_ok=True)
 
-                just_name = file_name.split('.')[0]
-                ext = file_name.split('.')[1]
+                ext = file_name.split('.')[-1]
+                just_name = file_name.replace(f'.{ext}', '')
 
                 top_left.save(f'download/{date_today}/split/{just_name}_top_left.{ext}')
                 top_right.save(f'download/{date_today}/split/{just_name}_top_right.{ext}')
@@ -112,11 +118,13 @@ class DownloadBot(commands.Bot):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-
-        print(f'Message received from {message.author.name}')
         logger.info(f'Message received from {message.author.name}')
 
+        print(f"==>> message: {message}")
+        print(f"==>> message.attachments: {message.attachments}")
+
         for attachment in message.attachments:
+            print(f"==>> attachment: {attachment}")
             if "Upscaled by" in message.content:
                 file_prefix = 'UPSCALED_'
             else:
@@ -127,6 +135,7 @@ class DownloadBot(commands.Bot):
 
                 # Send the message to the channel
                 await message.channel.send(f"Downloaded successfully: {attachment.filename}")
+                logger.info(f"Downloaded successfully: {attachment.filename}")
 
 
 if __name__ == '__main__':
