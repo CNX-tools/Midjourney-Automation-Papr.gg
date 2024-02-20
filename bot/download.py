@@ -54,14 +54,8 @@ class DownloadBot(commands.Bot):
         self._read_configs()
 
     def _read_configs(self):
-        with open('configs/general.json', 'r', encoding='utf-8') as f:
-            self.general_configs = json.load(f)
-
         with open('configs/images.json', 'r', encoding='utf-8') as f:
             self.images_configs = json.load(f)
-
-        with open('configs/prompts.json', 'r', encoding='utf-8') as f:
-            self.prompts_configs = json.load(f)
 
         logger.info('Configs read successfully')
 
@@ -99,16 +93,17 @@ class DownloadBot(commands.Bot):
                 top_left, top_right, bottom_left, bottom_right = self._split_image(
                     f'download/{date_today}/original/{file_name}')
 
-                # Create the folder to store the split images
-                os.makedirs(f'download/{date_today}/split', exist_ok=True)
-
                 ext = file_name.split('.')[-1]
                 just_name = file_name.replace(f'.{ext}', '')
 
-                top_left.save(f'download/{date_today}/split/{just_name}_top_left.{ext}')
-                top_right.save(f'download/{date_today}/split/{just_name}_top_right.{ext}')
-                bottom_left.save(f'download/{date_today}/split/{just_name}_bottom_left.{ext}')
-                bottom_right.save(f'download/{date_today}/split/{just_name}_bottom_right.{ext}')
+                # Create the folder to store the split images
+                save_dir = f'download/{date_today}/split/{just_name}'
+                os.makedirs(save_dir, exist_ok=True)
+
+                top_left.save(os.path.join(save_dir, f'{just_name}_top_left.{ext}'))
+                top_right.save(os.path.join(save_dir, f'{just_name}_top_right.{ext}'))
+                bottom_left.save(os.path.join(save_dir, f'{just_name}_bottom_left.{ext}'))
+                bottom_right.save(os.path.join(save_dir, f'{just_name}_bottom_right.{ext}'))
 
                 logger.info(f'Split successfully to "{date_today}": "{file_name}"')
 
@@ -120,11 +115,7 @@ class DownloadBot(commands.Bot):
     async def on_message(self, message):
         logger.info(f'Message received from {message.author.name}')
 
-        print(f"==>> message: {message}")
-        print(f"==>> message.attachments: {message.attachments}")
-
         for attachment in message.attachments:
-            print(f"==>> attachment: {attachment}")
             if "Upscaled by" in message.content:
                 file_prefix = 'UPSCALED_'
             else:
