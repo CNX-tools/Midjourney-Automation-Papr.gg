@@ -14,7 +14,7 @@ import asyncio
 load_dotenv()
 
 # Init the logger
-log_format = '%(asctime)s - [%(levelname)s] [%(pathname)s:%(lineno)d] - %(message)s - [%(process)d:%(thread)d]'
+log_format = '%(asctime)s - [%(levelname)s] - %(message)s'
 datefmt = '%Y-%m-%d %H:%M:%S'
 
 logger = logging.getLogger('prompt_bot')
@@ -66,6 +66,11 @@ class PromptBot(commands.Bot):
     def _read_prompts(self, prompts_file_path: str):
         with open(prompts_file_path, 'r', encoding='utf-8') as f:
             self.prompts: list = list(map(lambda x: x.strip(), f.readlines()))
+
+        self.prompts = list(filter(lambda x: x != '', self.prompts))
+
+        for i, prompt in enumerate(self.prompts):
+            logger.info(f'Prompt {i + 1}: {prompt}')
         logger.info(f'Prompts read successfully. Founded {len(self.prompts)} prompts')
 
     @commands.Cog.listener()
@@ -78,14 +83,20 @@ class PromptBot(commands.Bot):
 
         msg = message.content
 
-        while self.prompt_counter < len(self.prompts):
-            if msg == self.general_configs['start_command']:
+        if msg == self.general_configs['start_command']:
+            while True:
+                if self.prompt_counter >= len(self.prompts):
+                    await message.channel.send('All prompts have been entered successfully !')
+                    return
+
                 logger.info(f'Starting entering the prompts...')
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
                 pg.write('/')
                 # await asyncio.sleep(0.5)
+                pg.write('im')
+                await asyncio.sleep(0.5)
                 pg.press('tab')
-                await asyncio.sleep(0.3)
+                await asyncio.sleep(0.5)
                 prompt = f"{self.prompts_configs['prefix']} {self.prompts[self.prompt_counter]} {self.prompts_configs['suffix']}"
                 logger.info(f'Entering the prompts: {prompt}')
                 pg.write(prompt)
@@ -94,13 +105,13 @@ class PromptBot(commands.Bot):
                 await asyncio.sleep(0.5)
                 self.prompt_counter += 1
 
-                if self.prompt_counter == len(self.prompts):
-                    await message.channel.send('All prompts have been entered successfully !')
-                    break
-
-        self.prompt_counter = 0
-
 
 if __name__ == '__main__':
-    bot = PromptBot('prompts.txt')
-    bot.run(bot.discord_token)
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+    if os.path.exists('.temp/temp_prompt.txt'):
+        bot = PromptBot('.temp/temp_prompt.txt')
+        bot.run(bot.discord_token)
+    else:
+        print('Please upload the text file first !')
+        input('Press enter to exit...')

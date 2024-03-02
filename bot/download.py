@@ -16,7 +16,7 @@ from datetime import datetime as dt
 load_dotenv(override=True)
 
 # Init the logger
-log_format = '%(asctime)s - [%(levelname)s] [%(pathname)s:%(lineno)d] - %(message)s - [%(process)d:%(thread)d]'
+log_format = '%(asctime)s - [%(levelname)s] - %(message)s'
 datefmt = '%Y-%m-%d %H:%M:%S'
 
 logger = logging.getLogger('download_bot')
@@ -130,5 +130,7 @@ class DownloadBot(commands.Bot):
 
 
 if __name__ == '__main__':
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
     client = DownloadBot()
     client.run(os.getenv('DOWNLOAD_BOT_TOKEN'), reconnect=True)
