@@ -37,6 +37,9 @@ class TextFileGenerator():
         st.sidebar.button('Start | Restart downloading bot', on_click=self.__download_bot, use_container_width=True)
 
     def __prompting_bot(self):
+        if not os.path.exists('.temp/temp_prompt.txt'):
+            st.error('Please upload the text file first !')
+            return
         subprocess.Popen([r'script\prompt_bot.bat'], creationflags=subprocess.CREATE_NEW_CONSOLE)
         st.success('Prompt bot started !')
 

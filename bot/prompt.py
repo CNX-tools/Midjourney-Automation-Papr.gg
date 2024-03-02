@@ -87,7 +87,7 @@ class PromptBot(commands.Bot):
             while True:
                 if self.prompt_counter >= len(self.prompts):
                     await message.channel.send('All prompts have been entered successfully !')
-                    return
+                    sys.exit(0)
 
                 logger.info(f'Starting entering the prompts...')
                 await asyncio.sleep(2)
@@ -112,6 +112,3 @@ if __name__ == '__main__':
     if os.path.exists('.temp/temp_prompt.txt'):
         bot = PromptBot('.temp/temp_prompt.txt')
         bot.run(bot.discord_token)
-    else:
-        print('Please upload the text file first !')
-        input('Press enter to exit...')
