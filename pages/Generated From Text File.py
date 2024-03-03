@@ -5,6 +5,7 @@ sys.path.append(os.getcwd())  # NOQA
 import streamlit as st
 
 import subprocess
+import zipfile
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -21,7 +22,32 @@ class TextFileGenerator():
 
         print('All temp files removed')
 
+    def __download_selected_folder(self):
+        # Current selected folder
+        selected_folder = st.session_state.folder_by_days
+        print(f"==>> selected_folder: {selected_folder}")
+
+        # Zip the folder
+        shutil.make_archive(f'download/{selected_folder}', 'zip', f'download/{selected_folder}')
+
+        # Download the zip file
+        st.download_button(
+            label='Download the selected folder',
+            data=open(f'download/{selected_folder}.zip', 'rb'),
+            file_name=f'{selected_folder}.zip',
+            use_container_width=True,
+        )
+
+    def _download_images_folder(self):
+        st.markdown('### Download the images')
+
+        folder_by_days = os.listdir('download')
+        folder_by_days = [x for x in folder_by_days if os.path.isdir(f'download/{x}')]
+        st.selectbox('Select the folder by days', options=folder_by_days, key='folder_by_days')
+        st.button('Zip the folder', on_click=self.__download_selected_folder)
+
     def __init_main_content(self):
+        st.markdown('### Generated From Text File')
         self.text_uploader = st.file_uploader('Upload the text file', type=['txt'], on_change=self.__init_uploaded_file)
 
         if self.text_uploader:
@@ -30,6 +56,9 @@ class TextFileGenerator():
                 f.write(self.text_uploader.getvalue())
             string_io = self.text_uploader.getvalue().decode('utf-8')
             self.current_text_area = st.text_area('Text content', value=string_io, height=300)
+
+        # Download the images folder
+        self._download_images_folder()
 
     def __init_sidebar(self):
         st.sidebar.button('Start | Restart prompting bot', on_click=self.__prompting_bot, use_container_width=True)
