@@ -4,3 +4,4 @@ primaryColor="#3aa24f"
 
 [server]
 enableCORS = false
+enableXsrfProtection=false
