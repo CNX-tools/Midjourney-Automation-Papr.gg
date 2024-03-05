@@ -1,11 +1,14 @@
 import os
 import shutil
 import sys
+import time
 sys.path.append(os.getcwd())  # NOQA
-import streamlit as st
 
+import streamlit as st
 import subprocess
-import zipfile
+import pyautogui as pg
+
+from utils.window_interaction import point_cursor_to_chat
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -64,6 +67,29 @@ class TextFileGenerator():
         st.sidebar.button('Start | Restart prompting bot', on_click=self.__prompting_bot, use_container_width=True)
 
         st.sidebar.button('Start | Restart downloading bot', on_click=self.__download_bot, use_container_width=True)
+
+        st.sidebar.write('---')
+
+        st.sidebar.button('Start the automation', on_click=self.__start_automation, use_container_width=True)
+
+    def __start_automation(self):
+        if not os.path.exists('.temp/temp_prompt.txt'):
+            st.error('Please upload the text file first and run the prompt bot !')
+            return
+
+        # Point the cursor to the chat box
+        st.toast('Pointing the cursor to the chat box...')
+        if not point_cursor_to_chat():
+            st.error('Please open the Discord chat channel first !')
+            return
+
+        time.sleep(2)
+
+        st.toast('Type the command to start the bot...')
+        pg.write('start', interval=0.15)
+        pg.press('enter')
+
+        st.toast('Automation started !')
 
     def __prompting_bot(self):
         if not os.path.exists('.temp/temp_prompt.txt'):
