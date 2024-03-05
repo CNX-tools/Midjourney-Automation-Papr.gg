@@ -13,6 +13,12 @@ from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
+if 'prompt_bot' not in st.session_state:
+    st.session_state.prompt_bot = False
+
+if 'download_bot' not in st.session_state:
+    st.session_state.download_bot = False
+
 
 class TextFileGenerator():
     def __init__(self):
@@ -50,7 +56,7 @@ class TextFileGenerator():
         st.button('Zip the folder', on_click=self.__download_selected_folder)
 
     def __init_main_content(self):
-        st.markdown('### Generated From Text File')
+        st.markdown('### Generated From Text File\nTo use another prompt, please refresh the page F5')
         self.text_uploader = st.file_uploader('Upload the text file', type=['txt'], on_change=self.__init_uploaded_file)
 
         if self.text_uploader:
@@ -95,11 +101,22 @@ class TextFileGenerator():
         if not os.path.exists('.temp/temp_prompt.txt'):
             st.error('Please upload the text file first !')
             return
+
+        if st.session_state.prompt_bot:
+            st.error('Prompt bot is already running !')
+            return
+
         subprocess.Popen([r'script\prompt_bot.bat'], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        st.session_state.prompt_bot = True
         st.success('Prompt bot started !')
 
     def __download_bot(self):
+        if st.session_state.download_bot:
+            st.error('Download bot is already running !')
+            return
+
         subprocess.Popen([r'script\download_bot.bat'], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        st.session_state.download_bot = True
         st.success('Download bot started !')
 
     def init_app(self):
