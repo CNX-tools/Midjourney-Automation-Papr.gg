@@ -37,9 +37,7 @@ Press the "Save configurations" button to save the configurations.
 - Fourth, start the "Download bot" by clicking the "Start | Restart downloading bot" button. IF you have 
 already started the bot, you don't need to restart it. It will keep listening to the chat channel.
 
-- Fifth, switch to the VPS, click the mouse so that the cursor is on the chat area. Then type the "bot starting command", default is "start" to start the automation
-
-Leave the VPS running and let the bots do their work. You can check the logs to see the progress.
+- Fifth, press the "start automation" button to start the automation. The bot will start entering the prompts as human being.
 
 ### 3. **The images are downloaded to the local machine, in the download folder**
          ''')
