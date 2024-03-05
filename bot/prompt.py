@@ -11,6 +11,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import asyncio
 
+from utils.window_interaction import _minimize_window
+
 load_dotenv()
 
 # Init the logger
@@ -87,6 +89,7 @@ class PromptBot(commands.Bot):
             while True:
                 if self.prompt_counter >= len(self.prompts):
                     await message.channel.send('All prompts have been entered successfully !')
+                    _minimize_window('#general | Bot Generator Server - Discord')
                     sys.exit(0)
 
                 logger.info(f'Starting entering the prompts...')

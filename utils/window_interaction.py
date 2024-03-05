@@ -12,6 +12,14 @@ def _active_window(title: str) -> bool:
     return False
 
 
+def _minimize_window(title: str) -> bool:
+    hwnd = win32gui.FindWindow(None, title)
+    if hwnd:
+        win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
+        return True
+    return False
+
+
 def _get_window_coordinates(title: str):
     hwnd = win32gui.FindWindow(None, title)
     if hwnd:
