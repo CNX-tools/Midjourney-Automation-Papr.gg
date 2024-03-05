@@ -44,12 +44,14 @@ PyGetWindow==0.0.9
 Pygments==2.17.2
 PyMsgBox==1.0.9
 pyperclip==1.8.2
+pypiwin32==223
 PyRect==0.2.0
 PyScreeze==0.1.30
 python-dateutil==2.8.2
 python-dotenv==1.0.1
 pytweening==1.0.7
 pytz==2024.1
+pywin32==306
 referencing==0.33.0
 requests==2.31.0
 rich==13.7.0
@@ -71,3 +73,4 @@ validators==0.22.0
 watchdog==4.0.0
 yarl==1.9.4
 zipp==3.17.0
+psutil
